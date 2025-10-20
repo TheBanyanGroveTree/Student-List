@@ -1,6 +1,6 @@
 /* Description:
    Author: Aahana Sapra
-   Date: 10/15/25
+   Date: 10/19/25
  */
 
 // import relevant libraries
@@ -37,27 +37,28 @@ int main() {
 
   // declare char arr for user input
   const int INPUT_LENGTH = 81;
-  char userInput[INPUT_LENGTH];
+  char userCommand[INPUT_LENGTH];
 
   // continue prompting user for input until QUIT command
   bool keepModifying = true;
   while (keepModifying) {
     // read in user input and validate
     cout << "Enter a command (ADD, PRINT, DELETE, QUIT): ";
-    cin.getline(userInput, INPUT_LENGTH);
+    cin.getline(userCommand, INPUT_LENGTH);
     // invalid input
-    if ((strcmp(userInput, ADD) != 0) && (strcmp(userInput, PRINT) != 0) &&
-	(strcmp(userInput, DELETE) != 0) && (strcmp(userInput, QUIT) != 0)) {
+    if ((strcmp(userCommand, ADD) != 0) && (strcmp(userCommand, PRINT) != 0) &&
+	(strcmp(userCommand, DELETE) != 0) && (strcmp(userCommand, QUIT) != 0)) {
       cout << "Please input ADD, PRINT, DELETE, or QUIT." << endl;
     }
     // valid input
     else {
       // call appropriate method or exit program
-      if (strcmp(userInput, ADD) == 0) {
+      if (strcmp(userCommand, ADD) == 0) {
 	addStudent(studentList, INPUT_LENGTH);
-      } else if (strcmp(userInput, PRINT) == 0) {
+      } else if (strcmp(userCommand, PRINT) == 0) {
 	printStudentInfo(studentList);
-      } else if (strcmp(userInput, DELETE) == 0) {
+      } else if (strcmp(userCommand, DELETE) == 0) {
+	deleteStudent(studentList);
       } else {
 	keepModifying = false;
       }
@@ -102,5 +103,20 @@ void printStudentInfo(vector<Student*> &studentList) {
     // QUESTION: is an iterator a ptr.. why "dereference it"
     cout << (*it)->firstName << ' ' << (*it)->lastName << ", ";
     cout << (*it)->id << ", " << (*it)->gpa << endl; 
+  }
+}
+
+// delete student from list by using ID to identify them
+void deleteStudent(vector<Student*> &studentList) {
+  // prompt user for student ID
+  int idInput;
+  cout << "Enter the student's ID: ";
+  cin >> idInput;
+  cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+  // delete student that corresponds to specified ID 
+  for (auto it = studentList.begin(); it != studentList.end(); ++it) {
+    delete *it; // deallocate memory allocated by new operator
+    it = studentList.erase(it); // remove element from vector
   }
 }
