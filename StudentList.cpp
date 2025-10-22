@@ -1,6 +1,6 @@
 /* Description:
    Author: Aahana Sapra
-   Date: 10/19/25
+   Date: 10/22/25
  */
 
 // import relevant libraries
@@ -9,6 +9,7 @@
 #include <cstring>
 #include <limits>
 #include <ios>
+#include <algorithm>
 
 using namespace std;
 
@@ -114,9 +115,11 @@ void deleteStudent(vector<Student*> &studentList) {
   cin >> idInput;
   cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
-  // delete student that corresponds to specified ID 
+  // delete student that corresponds to specified ID
   for (auto it = studentList.begin(); it != studentList.end(); ++it) {
-    delete *it; // deallocate memory allocated by new operator
-    it = studentList.erase(it); // remove element from vector
+    if ((*it)->id == idInput) {
+      delete *it; // deallocate memory allocated by new operator
+      studentList.erase(remove(studentList.begin(), studentList.end(), *it)); // remove element from vector
+    }
   }
 }
