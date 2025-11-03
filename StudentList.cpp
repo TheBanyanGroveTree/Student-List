@@ -1,14 +1,20 @@
-/* Description:
+/* Description: This program consists of three main functions: add, print, delete.
+   The add function prompts the user to input information about a new student, which
+   is then stored in a vector of Student struct ptrs. The print function outputs the
+   information for all current students. The delete function asks the user for a
+   student ID before removing that struct from the vector. Lastly, the program ends 
+   with a "QUIT" command.
    Author: Aahana Sapra
-   Date: 10/22/25
+   Date: 11/2/25
  */
 
-// import relevant libraries
+// library headers
 #include <iostream>
 #include <vector>
 #include <cstring>
 #include <limits>
 #include <ios>
+#include <iomanip>
 #include <algorithm>
 
 using namespace std;
@@ -43,16 +49,20 @@ int main() {
   // continue prompting user for input until QUIT command
   bool keepModifying = true;
   while (keepModifying) {
-    // read in user input and validate
+    // read in user input
     cout << "Enter a command (ADD, PRINT, DELETE, QUIT): ";
     cin.getline(userCommand, INPUT_LENGTH);
-    // invalid input
+
+    // convert input to uppercase for comparison
+    for (int i = 0; i < strlen(userCommand); i++) {
+      userCommand[i] = toupper(userCommand[i]);
+    }
+    
+    // validate input
     if ((strcmp(userCommand, ADD) != 0) && (strcmp(userCommand, PRINT) != 0) &&
 	(strcmp(userCommand, DELETE) != 0) && (strcmp(userCommand, QUIT) != 0)) {
       cout << "Please input ADD, PRINT, DELETE, or QUIT." << endl;
-    }
-    // valid input
-    else {
+    } else {
       // call appropriate method or exit program
       if (strcmp(userCommand, ADD) == 0) {
 	addStudent(studentList, INPUT_LENGTH);
@@ -83,7 +93,6 @@ void addStudent(vector<Student*> &studentList, const int &INPUT_LENGTH) {
   
   cout << "Enter the student's ID: ";
   cin >> newStudent->id;
-  // QUESTION: how does this work...?
   cin.ignore(numeric_limits<streamsize>::max(), '\n'); // clear input buffer
 
   cout << "Enter the student's GPA: ";
@@ -96,14 +105,10 @@ void addStudent(vector<Student*> &studentList, const int &INPUT_LENGTH) {
 
 // define print function that outputs information for all students
 void printStudentInfo(vector<Student*> &studentList) {
-  // QUESTION: why ++it instead of it++?
-  // ALTERNATIVE: range-based for loop
   for (auto it = studentList.begin(); it != studentList.end(); ++it) {
-    cout.precision(2);
     // dereference iterator to get to Student* ptr
-    // QUESTION: is an iterator a ptr.. why "dereference it"
     cout << (*it)->firstName << ' ' << (*it)->lastName << ", ";
-    cout << (*it)->id << ", " << (*it)->gpa << endl; 
+    cout << (*it)->id << ", " << fixed << setprecision(2) << (*it)->gpa << endl; 
   }
 }
 
@@ -115,11 +120,16 @@ void deleteStudent(vector<Student*> &studentList) {
   cin >> idInput;
   cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
-  // delete student that corresponds to specified ID
-  for (auto it = studentList.begin(); it != studentList.end(); ++it) {
-    if ((*it)->id == idInput) {
-      delete *it; // deallocate memory allocated by new operator
-      studentList.erase(remove(studentList.begin(), studentList.end(), *it)); // remove element from vector
+  // erase-remove idiom
+  // define lambda function to deallocate memory for struct to be removed
+  auto studentToRemove = remove_if(studentList.begin(), studentList.end(), [=](Student* ptr) { // capture by val
+    if (ptr->id == idInput) {
+      delete ptr; // deallocate memory allocated by new operator
+      return true; // mark for removal
     }
-  }
+    return false;
+  });
+
+  // erase nullified ptr
+  studentList.erase(studentToRemove, studentList.end());
 }
